@@ -3,8 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>Weight & Balance - Form F</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="styles.css?v=1759198934">
 </head>
 <body>
 <div class="container">
@@ -306,10 +310,27 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="logica.js"></script>
+    <script src="script.js?v=1759198934"></script>
     <script>
         // Initialize the application when the page loads
-        window.addEventListener('DOMContentLoaded', init);
+        if (window.addEventListener) {
+            window.addEventListener('DOMContentLoaded', function() {
+                console.log('DOM loaded, initializing app...');
+                if (typeof init === 'function') {
+                    init();
+                } else {
+                    console.error('Init function not found!');
+                }
+            });
+        } else if (window.attachEvent) {
+            // IE8 support
+            window.attachEvent('onload', function() {
+                console.log('DOM loaded (IE), initializing app...');
+                if (typeof init === 'function') {
+                    init();
+                }
+            });
+        }
     </script>
 </body>
 </html>
