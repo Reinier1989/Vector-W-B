@@ -1,3 +1,12 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weight & Balance - Form F</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
 <div class="container">
         <div class="header">
             <h1>Weight & Balance – Form F</h1>
@@ -131,6 +140,26 @@
             <div class="total-item">
                 <div class="total-label">Total ARM</div>
                 <div class="total-value" id="totalArm">0.00 in</div>
+            </div>
+        </div>
+
+        <div class="fuel-totals">
+            <div class="fuel-totals-header">
+                <span>⛽ Fuel Totals</span>
+            </div>
+            <div class="fuel-totals-grid">
+                <div class="fuel-total-item">
+                    <div class="fuel-total-label">Total Fuel Weight</div>
+                    <div class="fuel-total-value" id="totalFuelWeight">0 lb</div>
+                </div>
+                <div class="fuel-total-item">
+                    <div class="fuel-total-label">Total Fuel Moment</div>
+                    <div class="fuel-total-value" id="totalFuelMoment">0.00</div>
+                </div>
+                <div class="fuel-total-item">
+                    <div class="fuel-total-label">Total Fuel ARM</div>
+                    <div class="fuel-total-value" id="totalFuelArm">0.00 in</div>
+                </div>
             </div>
         </div>
 
@@ -277,4 +306,10 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    
+    <script src="logica.js"></script>
+    <script>
+        // Initialize the application when the page loads
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
