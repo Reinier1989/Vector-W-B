@@ -1,6 +1,14 @@
+/*
+ * Weight & Balance CSS - Cross-browser compatible
+ * Supports: Chrome, Firefox, Safari, Edge, IE11+
+ * With vendor prefixes for maximum compatibility
+ */
+
 * {
             margin: 0;
             padding: 0;
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
             box-sizing: border-box;
         }
 
@@ -21,9 +29,11 @@
             max-width: 1200px;
             margin: 0 auto;
             background: rgba(255, 255, 255, 0.1);
+            -webkit-backdrop-filter: blur(10px);
             backdrop-filter: blur(10px);
             border-radius: 20px;
             padding: 30px;
+            -webkit-box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
             color: white;
         }
@@ -34,10 +44,17 @@
         }
 
         .header {
+            display: -webkit-box;
+            display: -ms-flexbox;
             display: flex;
+            -webkit-box-pack: justify;
+            -ms-flex-pack: justify;
             justify-content: space-between;
+            -webkit-box-align: center;
+            -ms-flex-align: center;
             align-items: center;
             margin-bottom: 30px;
+            -ms-flex-wrap: wrap;
             flex-wrap: wrap;
             gap: 15px;
         }
@@ -95,6 +112,9 @@
             right: 0;
             bottom: 0;
             background-color: #ccc;
+            -webkit-transition: .4s;
+            -moz-transition: .4s;
+            -o-transition: .4s;
             transition: .4s;
             border-radius: 34px;
         }
@@ -107,6 +127,9 @@
             left: 4px;
             bottom: 4px;
             background-color: white;
+            -webkit-transition: .4s;
+            -moz-transition: .4s;
+            -o-transition: .4s;
             transition: .4s;
             border-radius: 50%;
         }
@@ -116,6 +139,10 @@
         }
 
         input:checked + .slider:before {
+            -webkit-transform: translateX(26px);
+            -moz-transform: translateX(26px);
+            -ms-transform: translateX(26px);
+            -o-transform: translateX(26px);
             transform: translateX(26px);
         }
 
@@ -464,6 +491,79 @@
             font-size: 18px;
             font-weight: bold;
             color: #ffa500;
+        }
+
+        .fuel-totals {
+            background: -webkit-linear-gradient(315deg, rgba(33, 150, 243, 0.15), rgba(33, 203, 243, 0.15));
+            background: -moz-linear-gradient(315deg, rgba(33, 150, 243, 0.15), rgba(33, 203, 243, 0.15));
+            background: -o-linear-gradient(315deg, rgba(33, 150, 243, 0.15), rgba(33, 203, 243, 0.15));
+            background: linear-gradient(135deg, rgba(33, 150, 243, 0.15), rgba(33, 203, 243, 0.15));
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 2px solid rgba(33, 150, 243, 0.3);
+            display: -webkit-box;
+            display: -ms-flexbox;
+            display: flex;
+            -ms-flex-wrap: wrap;
+            flex-wrap: wrap;
+            -ms-flex-pack: distribute;
+            justify-content: space-around;
+            -webkit-box-align: center;
+            -ms-flex-align: center;
+            align-items: center;
+            gap: 20px;
+        }
+
+        body.light-mode .fuel-totals {
+            background: linear-gradient(135deg, rgba(33, 150, 243, 0.1), rgba(33, 203, 243, 0.1));
+            border: 2px solid rgba(33, 150, 243, 0.2);
+        }
+
+        .fuel-totals-header {
+            text-align: center;
+            font-size: 18px;
+            font-weight: 700;
+            color: #2196F3;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        body.light-mode .fuel-totals-header {
+            color: #1976D2;
+        }
+
+        .fuel-total-item {
+            text-align: center;
+            -webkit-box-flex: 1;
+            -ms-flex: 1;
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .fuel-total-label {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        body.light-mode .fuel-total-label {
+            color: rgba(0, 0, 0, 0.7);
+        }
+
+        .fuel-total-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #21CBF3;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        body.light-mode .fuel-total-value {
+            color: #0288D1;
+            text-shadow: none;
         }
 
         .buttons {
@@ -1001,6 +1101,14 @@
             .totals {
                 flex-direction: column;
                 gap: 15px;
+            }
+
+            .fuel-totals {
+                flex-direction: column;
+            }
+
+            .fuel-total-item {
+                min-width: 100%;
             }
 
             .buttons {
