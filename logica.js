@@ -1,4 +1,3 @@
-
 // Constants
         const MOMENT_DIVISOR = 100;
         const IN_TO_M = 0.0254;
@@ -359,6 +358,26 @@
             document.getElementById('totalMoment').textContent = (totalMoment / MOMENT_DIVISOR).toFixed(2);
             document.getElementById('totalArm').textContent = `${totalArm.toFixed(2)} ${lengthUnit}`;
 
+            // Calculate and update fuel totals
+            let fuelArm = 0;
+            if (fuelWeight > 0) {
+                fuelArm = fuelMoment / fuelWeight;
+            }
+
+            const fuelWeightEl = document.getElementById('totalFuelWeight');
+            const fuelMomentEl = document.getElementById('totalFuelMoment');
+            const fuelArmEl = document.getElementById('totalFuelArm');
+
+            if (fuelWeightEl) {
+                fuelWeightEl.textContent = `${fuelWeight.toFixed(1)} ${weightUnit}`;
+            }
+            if (fuelMomentEl) {
+                fuelMomentEl.textContent = (fuelMoment / MOMENT_DIVISOR).toFixed(2);
+            }
+            if (fuelArmEl) {
+                fuelArmEl.textContent = fuelWeight > 0 ? `${fuelArm.toFixed(3)} ${lengthUnit}` : `0.000 ${lengthUnit}`;
+            }
+
             // Calculate and update summaries
             updateSummary('zfw', zfwWeight, zfwMoment);
             updateSummary('tow', zfwWeight + fuelWeight, zfwMoment + fuelMoment);
@@ -485,14 +504,27 @@
             if (!name) return;
 
             const stationData = getStationData();
+
+            // Capture the envelope graph as an image
+            let envelopeGraphImage = null;
+            const canvas = document.getElementById('envelopeCanvas');
+            if (canvas) {
+                try {
+                    envelopeGraphImage = canvas.toDataURL('image/png');
+                } catch (error) {
+                    console.error('Error capturing envelope graph:', error);
+                }
+            }
+
             const calculation = {
                 name,
                 unit: isMetric ? 'kg-m' : 'lb-in',
                 timestamp: new Date().toLocaleString(),
                 macConfig: { ...macConfig }, // Save current MAC configuration
-                stations: stationData.map(station => ({
+                stations: stationData.map((station, index) => ({
                     number: station.number,
                     description: station.description,
+                    type: STATIONS[index][2], // Include station type
                     weight: station.weight,
                     arm: station.arm,
                     moment: station.moment
@@ -501,7 +533,8 @@
                     zfw: getSummaryData('zfw'),
                     tow: getSummaryData('tow'),
                     ldw: getSummaryData('ldw')
-                }
+                },
+                envelopeGraph: envelopeGraphImage // Save the graph image
             };
 
             history.push(calculation);
@@ -799,6 +832,57 @@
 
                 currentY += 10;
 
+                // FUEL TOTALS SECTION
+                if (currentY > pageHeight - 50) {
+                    doc.addPage();
+                    currentY = margin + 20;
+                }
+
+                // Calculate fuel totals
+                let totalFuelWeight = 0;
+                let totalFuelMoment = 0;
+                let totalFuelArm = 0;
+
+                calc.stations.forEach(station => {
+                    // Use the type saved in the calculation, or fallback to STATIONS
+                    const stationType = station.type || (STATIONS[station.number - 1] ? STATIONS[station.number - 1][2] : 'basic');
+                    if (stationType === 'fuel') {
+                        totalFuelWeight += station.weight;
+                        totalFuelMoment += station.moment;
+                    }
+                });
+
+                if (totalFuelWeight > 0) {
+                    totalFuelArm = totalFuelMoment / totalFuelWeight;
+                }
+
+                console.log('PDF Fuel Totals:', { totalFuelWeight, totalFuelMoment, totalFuelArm });
+
+                // Fuel totals box
+                doc.setFillColor(225, 240, 255);
+                doc.rect(margin, currentY, contentWidth, 20, 'F');
+                doc.setLineWidth(0.5);
+                doc.setDrawColor(33, 150, 243);
+                doc.rect(margin, currentY, contentWidth, 20);
+
+                doc.setTextColor(33, 150, 243);
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(11);
+                doc.text('⛽ FUEL TOTALS', margin + 5, currentY + 7);
+
+                doc.setTextColor(0, 0, 0);
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(9);
+
+                const fuelUnit = calc.unit === 'kg-m' ? 'kg' : 'lb';
+                const fuelArmUnit = calc.unit === 'kg-m' ? 'm' : 'in';
+
+                doc.text(`Weight: ${totalFuelWeight.toFixed(1)} ${fuelUnit}`, margin + 5, currentY + 13);
+                doc.text(`Moment: ${(totalFuelMoment / MOMENT_DIVISOR).toFixed(2)}`, margin + 60, currentY + 13);
+                doc.text(`ARM: ${totalFuelArm.toFixed(3)} ${fuelArmUnit}`, margin + 115, currentY + 13);
+
+                currentY += 28;
+
                 // SUMMARY SECTION
                 if (currentY > pageHeight - 80) {
                     doc.addPage();
@@ -869,6 +953,52 @@
 
                     currentY += 14;
                 });
+
+                // CG ENVELOPE GRAPH
+                currentY += 5;
+                if (currentY > pageHeight - 80) {
+                    doc.addPage();
+                    currentY = margin + 20;
+                }
+
+                doc.setFillColor(33, 150, 243);
+                doc.rect(margin, currentY, contentWidth, 10, 'F');
+                doc.setTextColor(255, 255, 255);
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(11);
+                doc.text('CG ENVELOPE GRAPH', margin + 5, currentY + 7);
+
+                currentY += 12;
+                doc.setTextColor(0, 0, 0);
+
+                // Add the envelope graph from saved image
+                if (calc.envelopeGraph) {
+                    try {
+                        // Use saved graph image
+                        const graphWidth = contentWidth;
+                        const graphHeight = contentWidth * 0.67; // Approximate aspect ratio
+
+                        // Check if we need a new page for the graph
+                        if (currentY + graphHeight > pageHeight - 20) {
+                            doc.addPage();
+                            currentY = margin + 20;
+                        }
+
+                        doc.addImage(calc.envelopeGraph, 'PNG', margin, currentY, graphWidth, graphHeight);
+                        currentY += graphHeight + 10;
+                    } catch (error) {
+                        console.error('Error adding envelope graph to PDF:', error);
+                        doc.setFont('helvetica', 'italic');
+                        doc.setFontSize(9);
+                        doc.text('Graph could not be rendered', margin + 5, currentY + 10);
+                        currentY += 20;
+                    }
+                } else {
+                    doc.setFont('helvetica', 'italic');
+                    doc.setFontSize(9);
+                    doc.text('Graph not available (save a new calculation to include graph)', margin + 5, currentY + 10);
+                    currentY += 20;
+                }
 
                 // APPROVAL SECTION
                 currentY += 5;
